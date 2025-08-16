@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "G Element Blocker",
   "version": "1.0",
-  "description": "Block any HTML elements on websites",
+  "description": "Chromium Extension – Block any HTML elements on websites",
   "permissions": [
     "activeTab",
     "storage",
