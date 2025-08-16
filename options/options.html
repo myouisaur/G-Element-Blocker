@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>G Element Blocker - Options</title>
+  <link rel="stylesheet" href="../styles/shared.css">
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🛡️ G Element Blocker Options</h1>
+      <p class="subtitle">Manage your blocked elements across all websites</p>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-box">
+        <input type="text" id="searchInput" class="form-input" placeholder="Search websites...">
+      </div>
+      <div class="toolbar-buttons">
+        <button id="importBtn" class="btn">📥 Import</button>
+        <button id="exportBtn" class="btn">📤 Export</button>
+        <button id="clearAllBtn" class="btn btn-danger">🗑️ Clear All</button>
+      </div>
+    </div>
+
+    <div class="stats-cards">
+      <div class="stat-card">
+        <div class="stat-number" id="totalSites">0</div>
+        <div class="stat-label">Websites</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="totalElements">0</div>
+        <div class="stat-label">Blocked Elements</div>
+      </div>
+    </div>
+
+    <div class="sites-container">
+      <div id="sitesList" class="sites-list">
+        <div class="empty-state">
+          <div class="empty-icon">🌐</div>
+          <h3>No blocked elements yet</h3>
+          <p>Start blocking elements on websites to see them here.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="importFile" accept=".json" style="display: none;">
+  
+  <script src="options.js"></script>
+</body>
+</html>
