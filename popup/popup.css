@@ -68,7 +68,7 @@ body {
   width: 100%;
 }
 
-/* Improved button styling */
+/* Button styling - No movement */
 .btn {
   background: var(--bg-secondary);
   border: 1px solid var(--border);
