@@ -171,11 +171,18 @@ function parseHtmlToSelector(htmlString) {
       return `#${CSS.escape(element.id)}`;
     }
     
-    // If no ID, use classes
+    // ENHANCED: Use element-specific compound class selector
     if (element.className && typeof element.className === 'string') {
-      const classes = element.className.split(' ').filter(c => c.trim());
-      if (classes.length > 0) {
-        return `.${CSS.escape(classes[0])}`;
+      const classes = element.className.split(' ')
+        .map(c => c.trim())
+        .filter(c => c && !isGenericClassForPopup(c));
+      
+      const tagName = element.tagName.toLowerCase();
+      
+      if (classes.length >= 1) {
+        const classSelector = classes.map(c => CSS.escape(c)).join('.');
+        const compoundSelector = `${tagName}.${classSelector}`;
+        return compoundSelector;
       }
     }
     
@@ -197,6 +204,26 @@ function parseHtmlToSelector(htmlString) {
     console.error('Error parsing HTML:', error);
     return null;
   }
+}
+
+function isGenericClassForPopup(className) {
+  const genericPatterns = [
+    'content', 'main', 'wrapper', 'container', 'row', 'col', 'grid',
+    'flex', 'block', 'inline', 'section', 'div', 'span',
+    'small', 'medium', 'large', 'big', 'tiny', 'full', 'half', 'quarter',
+    'left', 'right', 'center', 'top', 'bottom', 'middle',
+    'active', 'inactive', 'visible', 'hidden', 'show', 'hide',
+    'open', 'closed', 'expanded', 'collapsed',
+    'clearfix', 'clear', 'float', 'relative', 'absolute', 'fixed'
+  ];
+  
+  const lowerClass = className.toLowerCase();
+  return genericPatterns.some(pattern => {
+    if (pattern.endsWith('-')) {
+      return lowerClass.startsWith(pattern);
+    }
+    return lowerClass.includes(pattern);
+  });
 }
 
 function escapeHtml(text) {

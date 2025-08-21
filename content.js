@@ -93,14 +93,11 @@ function generateSelector(element) {
       return `#${CSS.escape(targetElement.id)}`;
     }
     
-    // If element has meaningful classes, use them
+    // ENHANCED: Try to generate compound class selector
     if (targetElement.className && typeof targetElement.className === 'string') {
-      const classes = targetElement.className.split(' ')
-        .filter(c => c.trim() && !isGenericClass(c.trim()));
-      
-      if (classes.length > 0) {
-        // Use the first meaningful class
-        return `.${CSS.escape(classes[0])}`;
+      const compoundSelector = generateCompoundClassSelector(targetElement);
+      if (compoundSelector) {
+        return compoundSelector;
       }
     }
     
@@ -116,14 +113,66 @@ function generateSelector(element) {
   return generateFallbackSelector(targetElement);
 }
 
+function generateCompoundClassSelector(element) {
+  const classes = element.className.split(' ')
+    .map(c => c.trim())
+    .filter(c => c && !isGenericClass(c));
+  
+  if (classes.length === 0) return null;
+  
+  // Get element tag for specificity
+  const tagName = element.tagName.toLowerCase();
+  
+  // Strategy 1: Use tag + ALL meaningful classes for maximum specificity
+  if (classes.length >= 1) {
+    const classSelector = classes.map(c => CSS.escape(c)).join('.');
+    const compoundSelector = `${tagName}.${classSelector}`;
+    
+    // Test if this compound selector is valid
+    try {
+      const matchingElements = document.querySelectorAll(compoundSelector);
+      console.log(`G Element Blocker: Element-specific selector "${compoundSelector}" matches ${matchingElements.length} elements`);
+      return compoundSelector;
+    } catch (error) {
+      console.warn('Invalid compound selector:', compoundSelector);
+    }
+  }
+  
+  return null;
+}
+
 function isGenericId(id) {
   const genericPatterns = ['content', 'main', 'wrapper', 'container', 'page'];
   return genericPatterns.some(pattern => id.toLowerCase().includes(pattern));
 }
 
 function isGenericClass(className) {
-  const genericPatterns = ['content', 'main', 'wrapper', 'container', 'row', 'col'];
-  return genericPatterns.some(pattern => className.toLowerCase().includes(pattern));
+  const genericPatterns = [
+    // Layout classes
+    'content', 'main', 'wrapper', 'container', 'row', 'col', 'grid',
+    'flex', 'block', 'inline', 'section', 'div', 'span',
+    
+    // Size/position classes
+    'small', 'medium', 'large', 'big', 'tiny', 'full', 'half', 'quarter',
+    'left', 'right', 'center', 'top', 'bottom', 'middle',
+    'w-', 'h-', 'p-', 'm-', 'pt-', 'pb-', 'pl-', 'pr-',
+    
+    // State classes
+    'active', 'inactive', 'visible', 'hidden', 'show', 'hide',
+    'open', 'closed', 'expanded', 'collapsed',
+    
+    // Generic utility classes
+    'clearfix', 'clear', 'float', 'relative', 'absolute', 'fixed',
+    'text-', 'bg-', 'border-', 'rounded', 'shadow'
+  ];
+  
+  const lowerClass = className.toLowerCase();
+  return genericPatterns.some(pattern => {
+    if (pattern.endsWith('-')) {
+      return lowerClass.startsWith(pattern);
+    }
+    return lowerClass.includes(pattern);
+  });
 }
 
 function isLikelyComponentContainer(element) {
@@ -146,15 +195,15 @@ function generateFallbackSelector(element) {
     return `#${CSS.escape(element.id)}`;
   }
   
-  // If element has classes, use first one
+  // ENHANCED: Try element-specific compound class selector for fallback too
   if (element.className && typeof element.className === 'string') {
-    const classes = element.className.split(' ').filter(c => c.trim());
-    if (classes.length > 0) {
-      return `.${CSS.escape(classes[0])}`;
+    const compoundSelector = generateCompoundClassSelector(element);
+    if (compoundSelector) {
+      return compoundSelector;
     }
   }
   
-  // Use tag with attributes
+  // Use tag with attributes as final fallback
   let selector = element.tagName.toLowerCase();
   
   // Add important attributes
